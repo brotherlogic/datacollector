@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package datacollector;
+
+import "github.com/brotherlogic/goserver/proto/server.proto";
+
+message Reading {
+  int64 timestamp = 1;
+  goserver.State measure = 2;
+}
+
+message DataSet {
+  string job_name = 1;
+  string identifier = 2;
+  repeated Reading readings = 3;
+}
