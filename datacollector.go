@@ -58,6 +58,6 @@ func main() {
 	server := Init()
 	server.PrepServer()
 	server.Register = server
-	server.RegisterServer("recordsales", false)
+	server.RegisterServer("datacollector", false)
 	fmt.Printf("%v", server.Serve())
 }
