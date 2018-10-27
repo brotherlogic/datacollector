@@ -4,6 +4,10 @@ package datacollector;
 
 import "github.com/brotherlogic/goserver/proto/server.proto";
 
+message Config {
+  repeated DataSet data = 1;
+}
+
 message Reading {
   int64 timestamp = 1;
   goserver.State measure = 2;
