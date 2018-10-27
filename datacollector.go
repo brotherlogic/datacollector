@@ -10,18 +10,21 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	pb "github.com/brotherlogic/datacollector/proto"
 	pbg "github.com/brotherlogic/goserver/proto"
 )
 
 //Server main server type
 type Server struct {
 	*goserver.GoServer
+	config *pb.Config
 }
 
 // Init builds the server
 func Init() *Server {
 	s := &Server{
 		&goserver.GoServer{},
+		&pb.Config{},
 	}
 	return s
 }
