@@ -39,7 +39,7 @@ func (p prodRetriever) retrieve(ctx context.Context, server, job string) (*pbg.S
 		}
 	}
 
-	return &pbg.ServerState{}, fmt.Errorf("Unable to locate %v on %v", job, server)
+	return &pbg.ServerState{}, fmt.Errorf("Unable to locate %v on %v: %v", job, server, err)
 }
 
 //Server main server type
@@ -116,5 +116,6 @@ func main() {
 	server.RegisterServer("datacollector", false)
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	go server.serveUp()
+	server.Log("Starting")
 	fmt.Printf("%v", server.Serve())
 }
