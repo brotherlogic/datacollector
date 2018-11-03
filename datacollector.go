@@ -77,7 +77,7 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 func (s *Server) collect(ctx context.Context) {
 	server, err := utils.GetMaster("recordwants")
 	if err == nil {
-		s.retrieve(ctx, server.Name, server.Identifier, "budget")
+		s.retrieve(ctx, server.Identifier, server.Name, "budget")
 	}
 }
 
