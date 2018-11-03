@@ -88,7 +88,7 @@ func (s *Server) deliver(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) serveUp() {
 	http.HandleFunc("/", s.deliver)
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8085", nil)
 	if err != nil {
 		panic(err)
 	}
