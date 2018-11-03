@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"golang.org/x/net/context"
@@ -27,6 +28,8 @@ func (s *Server) retrieve(ctx context.Context, server, job, variable string) {
 				}
 			}
 		}
+	} else {
+		s.Log(fmt.Sprintf("Error retrieving: %v", err))
 	}
 }
 
