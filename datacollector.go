@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
@@ -72,6 +73,13 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 	return nil
 }
 
+func (s *Server) collect(ctx context.Context) {
+	server, err := utils.GetMaster("recordwants")
+	if err == nil {
+		s.retrieve(ctx, server.Name, server.Identifier, "budget")
+	}
+}
+
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
 	return []*pbg.State{
@@ -92,5 +100,6 @@ func main() {
 	server.PrepServer()
 	server.Register = server
 	server.RegisterServer("datacollector", false)
+	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	fmt.Printf("%v", server.Serve())
 }
