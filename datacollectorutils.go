@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"time"
 
 	"golang.org/x/net/context"
@@ -27,4 +28,25 @@ func (s *Server) retrieve(ctx context.Context, server, job, variable string) {
 			}
 		}
 	}
+}
+
+type jsonResponse struct {
+	Timestamp int64 `json:"timestamp"`
+	Value     int64 `json:"value"`
+}
+
+func (s *Server) getJSON(job, variable string) []byte {
+	resp := []jsonResponse{}
+	for _, dataset := range s.config.Data {
+		if dataset.JobName == job {
+			for _, r := range dataset.Readings {
+				if r.Measure.Key == variable {
+					resp = append(resp, jsonResponse{Timestamp: r.Timestamp, Value: r.Measure.Value})
+				}
+			}
+		}
+	}
+
+	data, _ := json.Marshal(resp)
+	return data
 }

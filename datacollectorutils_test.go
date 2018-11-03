@@ -1,7 +1,9 @@
 package main
 
 import (
+	"strconv"
 	"testing"
+	"time"
 
 	pb "github.com/brotherlogic/datacollector/proto"
 	pbg "github.com/brotherlogic/goserver/proto"
@@ -40,5 +42,18 @@ func TestRetrieveWithAppend(t *testing.T) {
 
 	if len(s.config.Data[0].Readings) == 2 {
 		t.Errorf("Did not read data")
+	}
+}
+
+func TestGetData(t *testing.T) {
+	s := InitTestServer()
+	tstamp := time.Now().Unix()
+	s.config.Data = append(s.config.Data, &pb.DataSet{JobName: "madeup", Identifier: "madeup", Readings: []*pb.Reading{&pb.Reading{Timestamp: tstamp, Measure: &pbg.State{Key: "blah", Value: int64(12)}}}})
+
+	json := s.getJSON("madeup", "blah")
+	want := "[{\"timestamp\":" + strconv.Itoa(int(tstamp)) + ",\"value\":12}]"
+	if string(json) != want {
+		t.Errorf("Json has come back bad: %v", string(json))
+		t.Errorf("It should have been   : %v", want)
 	}
 }

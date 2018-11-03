@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -80,6 +81,19 @@ func (s *Server) collect(ctx context.Context) {
 	}
 }
 
+func (s *Server) deliver(w http.ResponseWriter, r *http.Request) {
+	data := s.getJSON("recordwants", "budget")
+	w.Write(data)
+}
+
+func (s *Server) serveUp() {
+	http.HandleFunc("/", s.deliver)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
 	return []*pbg.State{
@@ -101,5 +115,6 @@ func main() {
 	server.Register = server
 	server.RegisterServer("datacollector", false)
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
+	go server.serveUp()
 	fmt.Printf("%v", server.Serve())
 }
