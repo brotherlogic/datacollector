@@ -116,6 +116,6 @@ func main() {
 	server.RegisterServer("datacollector", false)
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	go server.serveUp()
-	server.Log("Starting")
+	server.Log(fmt.Sprintf("Starting %v", server.GoServer.RunningFile))
 	fmt.Printf("%v", server.Serve())
 }
