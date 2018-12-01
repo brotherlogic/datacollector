@@ -4,6 +4,15 @@ package datacollector;
 
 import "github.com/brotherlogic/goserver/proto/server.proto";
 
+message ReadSpec {
+  string measure_key = 1;
+  string job_name = 2; // Optional
+}
+
+message ReadConfig {
+  repeated ReadSpec spec = 1;
+}
+
 message Config {
   repeated DataSet data = 1;
 }
