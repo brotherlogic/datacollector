@@ -83,6 +83,7 @@ func (s *Server) collect(ctx context.Context) {
 
 func (s *Server) deliver(w http.ResponseWriter, r *http.Request) {
 	data := s.getJSON("recordwants", "budget")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(data)
 }
 
