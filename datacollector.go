@@ -11,6 +11,7 @@ import (
 
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
+	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
@@ -25,10 +26,10 @@ type retriever interface {
 type prodRetriever struct{}
 
 func (p prodRetriever) retrieve(ctx context.Context, server, job string) (*pbg.ServerState, error) {
-	servers, err := utils.ResolveAll(job)
+	servers, err := utils.ResolveAll("")
 	if err == nil {
 		for _, s := range servers {
-			if s.Identifier == server {
+			if (server == "" || s.Identifier == server) && (job == "" || s.Name == job) {
 				conn, err := grpc.Dial(s.Ip+":"+strconv.Itoa(int(s.Port)), grpc.WithInsecure())
 				if err == nil {
 					defer conn.Close()
@@ -45,8 +46,9 @@ func (p prodRetriever) retrieve(ctx context.Context, server, job string) (*pbg.S
 //Server main server type
 type Server struct {
 	*goserver.GoServer
-	config    *pb.Config
-	retriever retriever
+	config     *pb.Config
+	retriever  retriever
+	readConfig *pb.ReadConfig
 }
 
 // Init builds the server
@@ -55,6 +57,7 @@ func Init() *Server {
 		&goserver.GoServer{},
 		&pb.Config{},
 		prodRetriever{},
+		&pb.ReadConfig{},
 	}
 	return s
 }
@@ -75,9 +78,8 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 }
 
 func (s *Server) collect(ctx context.Context) {
-	server, err := utils.GetMaster("recordwants")
-	if err == nil {
-		s.retrieve(ctx, server.Identifier, server.Name, "budget")
+	for _, c := range s.readConfig.Spec {
+		s.retrieve(ctx, "", c.JobName, c.MeasureKey)
 	}
 }
 
@@ -117,6 +119,15 @@ func main() {
 	server.RegisterServer("datacollector", false)
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	go server.serveUp()
-	server.Log(fmt.Sprintf("Starting %v", server.GoServer.RunningFile))
+
+	data, err := Asset("config/config.pb.txt")
+	if err != nil {
+		log.Fatalf("Failed to read config file: %v", err)
+	}
+	err = proto.UnmarshalText(string(data), server.readConfig)
+	if err != nil {
+		log.Fatalf("Failed to parse config file: %v", err)
+	}
+
 	fmt.Printf("%v", server.Serve())
 }
