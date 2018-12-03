@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/brotherlogic/goserver"
@@ -84,9 +85,14 @@ func (s *Server) collect(ctx context.Context) {
 }
 
 func (s *Server) deliver(w http.ResponseWriter, r *http.Request) {
-	data := s.getJSON("recordwants", "budget")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(data)
+	elems := strings.Split(r.URL.Path[1:], "/")
+	if len(elems) != 2 {
+		w.Write([]byte(fmt.Sprintf("Unable to handle request: %v", r.URL.Path)))
+	} else {
+		data := s.getJSON(elems[0], elems[1])
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Write(data)
+	}
 }
 
 func (s *Server) serveUp() {
