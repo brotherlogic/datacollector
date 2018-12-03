@@ -120,7 +120,7 @@ func main() {
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	go server.serveUp()
 
-	data, err := Asset("config/config.pb.txt")
+	data, err := Asset("config/config.pb")
 	if err != nil {
 		log.Fatalf("Failed to read config file: %v", err)
 	}
