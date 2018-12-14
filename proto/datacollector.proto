@@ -7,6 +7,7 @@ import "github.com/brotherlogic/goserver/proto/server.proto";
 message ReadSpec {
   string measure_key = 1;
   string job_name = 2; // Optional
+  string name = 3; // Required
 }
 
 message ReadConfig {

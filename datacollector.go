@@ -75,6 +75,12 @@ func (s *Server) ReportHealth() bool {
 
 // Mote promotes/demotes this server
 func (s *Server) Mote(ctx context.Context, master bool) error {
+	//Confirm that the config is correct
+	for _, rs := range s.readConfig.Spec {
+		if rs.GetName() == "" {
+			return fmt.Errorf("Unable to mote: %v is missing a name", rs)
+		}
+	}
 	return nil
 }
 
