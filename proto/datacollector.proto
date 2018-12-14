@@ -27,3 +27,13 @@ message DataSet {
   string identifier = 2;
   repeated Reading readings = 3;
 }
+
+message GetDataSetsRequest {}
+
+message GetDataSetsResponse {
+  repeated DataSet data_sets= 1;
+}
+
+service DataCollectorService {
+  rpc GetDataSets(GetDataSetsRequest) returns (GetDataSetsResponse) {};
+}
