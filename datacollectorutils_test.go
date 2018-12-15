@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -13,6 +14,7 @@ import (
 type testRetriever struct{}
 
 func (p testRetriever) retrieve(ctx context.Context, server, job string) (*pbg.ServerState, error) {
+	log.Printf("RETREUVE")
 	return &pbg.ServerState{States: []*pbg.State{&pbg.State{Key: "blah", Value: 12}}}, nil
 }
 
@@ -24,7 +26,7 @@ func InitTestServer() *Server {
 
 func TestRetrieve(t *testing.T) {
 	s := InitTestServer()
-	s.retrieve(context.Background(), "madeup", "madeup", "blah")
+	s.retrieve(context.Background(), "madeup", "madeup", "blah", "thing")
 
 	if len(s.config.Data) == 0 {
 		t.Errorf("Did not read data")
@@ -34,7 +36,7 @@ func TestRetrieve(t *testing.T) {
 func TestRetrieveWithAppend(t *testing.T) {
 	s := InitTestServer()
 	s.config.Data = append(s.config.Data, &pb.DataSet{JobName: "madeup", Identifier: "madeup"})
-	s.retrieve(context.Background(), "madeup", "madeup", "blah")
+	s.retrieve(context.Background(), "madeup", "madeup", "blah", "thing")
 
 	if len(s.config.Data) == 0 {
 		t.Errorf("Did not read data")

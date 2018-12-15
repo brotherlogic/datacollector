@@ -27,6 +27,7 @@ message DataSet {
   string job_name = 1;
   string identifier = 2;
   repeated Reading readings = 3;
+  string spec_name = 4;
 }
 
 message GetDataSetsRequest {}

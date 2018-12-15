@@ -1,9 +1,11 @@
 package main
 
-import "golang.org/x/net/context"
-import pb "github.com/brotherlogic/datacollector/proto"
+import (
+	pb "github.com/brotherlogic/datacollector/proto"
+	"golang.org/x/net/context"
+)
 
 // GetDataSets gets the data sets
 func (s *Server) GetDataSets(ctx context.Context, req *pb.GetDataSetsRequest) (*pb.GetDataSetsResponse, error) {
-	return &pb.GetDataSetsResponse{}, nil
+	return &pb.GetDataSetsResponse{DataSets: s.config.Data}, nil
 }
