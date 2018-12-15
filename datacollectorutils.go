@@ -9,7 +9,7 @@ import (
 	pb "github.com/brotherlogic/datacollector/proto"
 )
 
-func (s *Server) retrieve(ctx context.Context, server, job, variable string) {
+func (s *Server) retrieve(ctx context.Context, server, job, variable string, name string) {
 	stats, err := s.retriever.retrieve(ctx, server, job)
 	if err == nil {
 		for _, stat := range stats.States {
@@ -23,7 +23,7 @@ func (s *Server) retrieve(ctx context.Context, server, job, variable string) {
 				}
 
 				if !seen {
-					s.config.Data = append(s.config.Data, &pb.DataSet{JobName: job, Identifier: server, Readings: []*pb.Reading{&pb.Reading{Timestamp: time.Now().Unix(), Measure: stat}}})
+					s.config.Data = append(s.config.Data, &pb.DataSet{JobName: job, Identifier: server, SpecName: name, Readings: []*pb.Reading{&pb.Reading{Timestamp: time.Now().Unix(), Measure: stat}}})
 				}
 			}
 		}

@@ -86,7 +86,7 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 func (s *Server) collect(ctx context.Context) {
 	for _, c := range s.readConfig.Spec {
-		s.retrieve(ctx, "", c.JobName, c.MeasureKey)
+		s.retrieve(ctx, "", c.JobName, c.MeasureKey, c.Name)
 	}
 }
 
