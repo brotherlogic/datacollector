@@ -111,6 +111,10 @@ func (s *Server) serveUp() {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
+	staging := int64(0)
+	for _, data := range s.config.Data {
+		staging += int64(len(data.Staging))
+	}
 	return []*pbg.State{
 		&pbg.State{Key: "collected", Value: int64(len(s.config.Data))},
 	}
