@@ -9,6 +9,22 @@ import (
 	pb "github.com/brotherlogic/datacollector/proto"
 )
 
+func (s *Server) flushToStaging(ctx context.Context) {
+	stTime := time.Now()
+	for _, dataset := range s.config.Data {
+		i := 0
+		for i < len(dataset.Readings) {
+			if dataset.Readings[i].Timestamp < time.Now().Add(time.Minute*-15).Unix() {
+				dataset.Staging = append(dataset.Staging, &pb.Reading{Timestamp: dataset.Readings[i].Timestamp, Measure: dataset.Readings[i].Measure})
+				dataset.Readings = append(dataset.Readings[:i], dataset.Readings[i+1:]...)
+			} else {
+				i++
+			}
+		}
+	}
+	s.flushTime = time.Now().Sub(stTime)
+}
+
 func (s *Server) retrieve(ctx context.Context, server, job, variable string, name string) {
 	stats, err := s.retriever.retrieve(ctx, server, job)
 	if err == nil {
@@ -44,6 +60,12 @@ func (s *Server) getJSON(job, variable string) []byte {
 					resp = append(resp, jsonResponse{Timestamp: r.Timestamp, Value: r.Measure.Value})
 				}
 			}
+			for _, r := range dataset.Staging {
+				if r.Measure.Key == variable {
+					resp = append(resp, jsonResponse{Timestamp: r.Timestamp, Value: r.Measure.Value})
+				}
+			}
+
 		}
 	}
 
