@@ -59,3 +59,24 @@ func TestGetData(t *testing.T) {
 		t.Errorf("It should have been   : %v", want)
 	}
 }
+
+func TestGetDataFollowingFlush(t *testing.T) {
+	s := InitTestServer()
+	tstamp := time.Now().Add(time.Hour * -1).Unix()
+	tstamp2 := time.Now().Unix()
+	s.config.Data = append(s.config.Data, &pb.DataSet{JobName: "madeup", Identifier: "madeup", Readings: []*pb.Reading{&pb.Reading{Timestamp: tstamp, Measure: &pbg.State{Key: "blah", Value: int64(12)}}}})
+	s.config.Data = append(s.config.Data, &pb.DataSet{JobName: "madeup", Identifier: "madeup", Readings: []*pb.Reading{&pb.Reading{Timestamp: tstamp2, Measure: &pbg.State{Key: "blah", Value: int64(12)}}}})
+
+	s.flushToStaging(context.Background())
+
+	if len(s.config.Data[0].Staging) != 1 {
+		t.Fatalf("Data has not been flushed to staging: %v", s.config.Data[0])
+	}
+
+	json := s.getJSON("madeup", "blah")
+	want := "[{\"timestamp\":" + strconv.Itoa(int(tstamp)) + ",\"value\":12},{\"timestamp\":" + strconv.Itoa(int(tstamp2)) + ",\"value\":12}]"
+	if string(json) != want {
+		t.Errorf("Json has come back bad: %v", string(json))
+		t.Errorf("It should have been   : %v", want)
+	}
+}

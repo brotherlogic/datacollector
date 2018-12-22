@@ -23,17 +23,11 @@ message Reading {
   goserver.State measure = 2;
 }
 
-message Staging {
-  int64 timestamp_start = 1;
-  int64 timestamp_end = 2;
-  goserver.State measure = 3;
-}
-
 message DataSet {
   string job_name = 1;
   string identifier = 2;
   repeated Reading readings = 3;
-  repeated Staging staging = 5;
+  repeated Reading staging = 5;
   string spec_name = 4;
 }
 
