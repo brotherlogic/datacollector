@@ -8,6 +8,7 @@ message ReadSpec {
   string measure_key = 1;
   string job_name = 2; // Optional
   string name = 3; // Required
+  bool collapsed = 4;
 }
 
 message ReadConfig {
