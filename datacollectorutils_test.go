@@ -80,3 +80,18 @@ func TestGetDataFollowingFlush(t *testing.T) {
 		t.Errorf("It should have been   : %v", want)
 	}
 }
+
+func TestRunCollapse(t *testing.T) {
+	s := InitTestServer()
+
+	tstamp := time.Now().Add(time.Hour * -1).Unix()
+	tstamp2 := time.Now().Unix()
+	tstamp3 := time.Now().Add(time.Hour * -2).Unix()
+	s.config.Data = append(s.config.Data, &pb.DataSet{JobName: "madeup", Identifier: "madeup", Staging: []*pb.Reading{&pb.Reading{Timestamp: tstamp3, Measure: &pbg.State{Key: "blah", Value: int64(20)}}, &pb.Reading{Timestamp: tstamp, Measure: &pbg.State{Key: "blah", Value: int64(12)}}, &pb.Reading{Timestamp: tstamp2, Measure: &pbg.State{Key: "blah", Value: int64(12)}}}})
+
+	s.collapseStaging(context.Background())
+
+	if len(s.config.Data[0].Staging) != 2 {
+		t.Errorf("Staging has not been collapsed correctly")
+	}
+}

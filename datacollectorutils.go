@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/datacollector/proto"
+	pbgs "github.com/brotherlogic/goserver/proto"
 )
 
 func (s *Server) flushToStaging(ctx context.Context) {
@@ -71,4 +72,27 @@ func (s *Server) getJSON(job, variable string) []byte {
 
 	data, _ := json.Marshal(resp)
 	return data
+}
+
+func matchMeasure(a, b *pbgs.State) bool {
+	return (a.Key == b.Key &&
+		a.TimeValue == b.TimeValue &&
+		a.Value == b.Value &&
+		a.Text == b.Text &&
+		a.Fraction == b.Fraction &&
+		a.TimeDuration == b.TimeDuration)
+}
+
+func (s *Server) collapseStaging(ctx context.Context) {
+	for _, dataset := range s.config.Data {
+		i := 0
+		for i < len(dataset.Staging)-1 {
+			if matchMeasure(dataset.Staging[i].Measure, dataset.Staging[i+1].Measure) {
+				dataset.Staging = append(dataset.Staging[:i], dataset.Staging[i+1:]...)
+			} else {
+				dataset.Staging[i].Collapsed = true
+				i++
+			}
+		}
+	}
 }

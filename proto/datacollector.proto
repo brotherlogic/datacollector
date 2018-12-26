@@ -8,7 +8,6 @@ message ReadSpec {
   string measure_key = 1;
   string job_name = 2; // Optional
   string name = 3; // Required
-  bool collapsed = 4;
 }
 
 message ReadConfig {
@@ -22,6 +21,7 @@ message Config {
 message Reading {
   int64 timestamp = 1;
   goserver.State measure = 2;
+  bool collapsed = 3;
 }
 
 message DataSet {
