@@ -138,6 +138,7 @@ func main() {
 	server.RegisterServer("datacollector", false)
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	server.RegisterRepeatingTask(server.flushToStaging, "flush_to_staging", time.Minute*30)
+	server.RegisterRepeatingTask(server.collapseStaging, "collapse_staging", time.Minute*30)
 	go server.serveUp()
 
 	data, err := Asset("config/config.pb")
