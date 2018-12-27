@@ -51,6 +51,7 @@ type Server struct {
 	retriever  retriever
 	readConfig *pb.ReadConfig
 	flushTime  time.Duration
+	saveTime   time.Duration
 }
 
 // Init builds the server
@@ -60,6 +61,7 @@ func Init() *Server {
 		&pb.Config{},
 		prodRetriever{},
 		&pb.ReadConfig{},
+		0,
 		0,
 	}
 	return s
@@ -120,6 +122,18 @@ func (s *Server) GetState() []*pbg.State {
 	return []*pbg.State{
 		&pbg.State{Key: "collected", Value: int64(len(s.config.Data))},
 		&pbg.State{Key: "flush_time", TimeDuration: s.flushTime.Nanoseconds()},
+		&pbg.State{Key: "save_time", TimeDuration: s.saveTime.Nanoseconds()},
+	}
+}
+
+func (s *Server) runSave(ctx context.Context) {
+	data, filename := s.saveData(ctx)
+	by, _ := proto.Marshal(data)
+
+	err := ioutil.WriteFile("/media/scratch/datacollector/"+filename, by, 0644)
+
+	if err != nil {
+		s.Log(fmt.Sprintf("Error writing data: %v", err))
 	}
 }
 
@@ -139,6 +153,7 @@ func main() {
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	server.RegisterRepeatingTask(server.flushToStaging, "flush_to_staging", time.Minute*30)
 	server.RegisterRepeatingTask(server.collapseStaging, "collapse_staging", time.Minute*30)
+	server.RegisterRepeatingTask(server.runSave, "save_data", time.Minute*5)
 	go server.serveUp()
 
 	data, err := Asset("config/config.pb")
