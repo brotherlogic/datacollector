@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/datacollector/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 func (s *Server) flushToStaging(ctx context.Context) {
@@ -95,4 +97,16 @@ func (s *Server) collapseStaging(ctx context.Context) {
 			}
 		}
 	}
+}
+
+func (s *Server) saveData(ctx context.Context) (*pb.Config, string) {
+	t := time.Now()
+
+	saveCopy := proto.Clone(s.config).(*pb.Config)
+	for _, dataset := range saveCopy.Data {
+		dataset.Readings = []*pb.Reading{}
+	}
+	s.saveTime = time.Now().Sub(t)
+
+	return saveCopy, fmt.Sprintf("%v%v%v", time.Now().Year(), time.Now().Month(), time.Now().Day())
 }
