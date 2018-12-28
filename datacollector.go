@@ -53,6 +53,7 @@ type Server struct {
 	readConfig *pb.ReadConfig
 	flushTime  time.Duration
 	saveTime   time.Duration
+	loadTime   time.Duration
 }
 
 // Init builds the server
@@ -62,6 +63,7 @@ func Init() *Server {
 		&pb.Config{},
 		prodRetriever{},
 		&pb.ReadConfig{},
+		0,
 		0,
 		0,
 	}
@@ -124,6 +126,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "collected", Value: int64(len(s.config.Data))},
 		&pbg.State{Key: "flush_time", TimeDuration: s.flushTime.Nanoseconds()},
 		&pbg.State{Key: "save_time", TimeDuration: s.saveTime.Nanoseconds()},
+		&pbg.State{Key: "load_time", TimeDuration: s.loadTime.Nanoseconds()},
 	}
 }
 
@@ -151,6 +154,12 @@ func main() {
 	server := Init()
 	server.PrepServer()
 	server.Register = server
+
+	err := server.loadData("/media/scratch/datacollector/")
+	if err != nil {
+		panic(err)
+	}
+
 	server.RegisterServer("datacollector", false)
 	server.RegisterRepeatingTask(server.collect, "collect", time.Minute*5)
 	server.RegisterRepeatingTask(server.flushToStaging, "flush_to_staging", time.Minute*30)

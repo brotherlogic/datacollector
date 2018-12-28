@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	"golang.org/x/net/context"
@@ -109,4 +110,20 @@ func (s *Server) saveData(ctx context.Context) (*pb.Config, string) {
 	s.saveTime = time.Now().Sub(t)
 
 	return saveCopy, fmt.Sprintf("%v%v%v", time.Now().Year(), time.Now().Month(), time.Now().Day())
+}
+
+func (s *Server) loadData(dir string) error {
+	t := time.Now()
+
+	data, err := ioutil.ReadFile(dir + fmt.Sprintf("%v%v%v", time.Now().Year(), time.Now().Month(), time.Now().Day()))
+	if err != nil {
+		return err
+	}
+
+	loadCopy := &pb.Config{}
+	proto.Unmarshal(data, loadCopy)
+	s.config = loadCopy
+
+	s.loadTime = time.Now().Sub(t)
+	return nil
 }

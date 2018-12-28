@@ -96,18 +96,10 @@ func TestRunCollapse(t *testing.T) {
 	}
 }
 
-func TestSaveData(t *testing.T) {
+func TestLoadDataBadRead(t *testing.T) {
 	s := InitTestServer()
-	tstamp := time.Now().Add(time.Hour * -1).Unix()
-	s.config.Data = append(s.config.Data, &pb.DataSet{JobName: "madeup", Identifier: "madeup", Staging: []*pb.Reading{&pb.Reading{Timestamp: tstamp, Measure: &pbg.State{Key: "blah", Value: int64(20)}, Collapsed: true}}, Readings: []*pb.Reading{&pb.Reading{Timestamp: tstamp, Measure: &pbg.State{Key: "blah", Value: int64(12)}}}})
-
-	data, file := s.saveData(context.Background())
-
-	if len(file) == 0 {
-		t.Errorf("No filename specified")
-	}
-
-	if len(data.Data) == 0 || len(data.Data[0].Readings) > 0 {
-		t.Errorf("Readings have not been stripped")
+	err := s.loadData("madeupdirectory")
+	if err == nil {
+		t.Errorf("Bad directory did not cause error")
 	}
 }
