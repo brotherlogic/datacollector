@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -130,6 +131,7 @@ func (s *Server) runSave(ctx context.Context) {
 	data, filename := s.saveData(ctx)
 	by, _ := proto.Marshal(data)
 
+	os.MkdirAll("/media/scratch/datacollector/", 0755)
 	err := ioutil.WriteFile("/media/scratch/datacollector/"+filename, by, 0644)
 
 	if err != nil {
