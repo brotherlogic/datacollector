@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"golang.org/x/net/context"
@@ -115,10 +116,14 @@ func (s *Server) saveData(ctx context.Context) (*pb.Config, string) {
 func (s *Server) loadData(dir string) error {
 	t := time.Now()
 
-	data, err := ioutil.ReadFile(dir + fmt.Sprintf("%v%v%v", time.Now().Year(), time.Now().Month(), time.Now().Day()))
-	if err != nil {
-		return err
+	filename := dir + fmt.Sprintf("%v%v%v", time.Now().Year(), time.Now().Month(), time.Now().Day())
+
+	// If the file doesn't exist, just treat this is working as intended.
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return nil
 	}
+
+	data, _ := ioutil.ReadFile(dir + fmt.Sprintf("%v%v%v", time.Now().Year(), time.Now().Month(), time.Now().Day()))
 
 	loadCopy := &pb.Config{}
 	proto.Unmarshal(data, loadCopy)
