@@ -99,7 +99,7 @@ func TestRunCollapse(t *testing.T) {
 func TestLoadDataBadRead(t *testing.T) {
 	s := InitTestServer()
 	err := s.loadData("madeupdirectory")
-	if err == nil {
-		t.Errorf("Bad directory did not cause error")
+	if err != nil {
+		t.Errorf("Not existant file caused an error")
 	}
 }
