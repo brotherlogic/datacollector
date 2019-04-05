@@ -14,7 +14,7 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func (s *Server) flushToStaging(ctx context.Context) {
+func (s *Server) flushToStaging(ctx context.Context) error {
 	stTime := time.Now()
 	for _, dataset := range s.config.Data {
 		i := 0
@@ -28,6 +28,7 @@ func (s *Server) flushToStaging(ctx context.Context) {
 		}
 	}
 	s.flushTime = time.Now().Sub(stTime)
+	return nil
 }
 
 func (s *Server) retrieve(ctx context.Context, server, job, variable string, name string) {
@@ -87,7 +88,7 @@ func matchMeasure(a, b *pbgs.State) bool {
 		a.TimeDuration == b.TimeDuration)
 }
 
-func (s *Server) collapseStaging(ctx context.Context) {
+func (s *Server) collapseStaging(ctx context.Context) error {
 	for _, dataset := range s.config.Data {
 		i := 0
 		for i < len(dataset.Staging)-1 {
@@ -99,6 +100,8 @@ func (s *Server) collapseStaging(ctx context.Context) {
 			}
 		}
 	}
+
+	return nil
 }
 
 func (s *Server) saveData(ctx context.Context) (*pb.Config, string) {

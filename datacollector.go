@@ -96,10 +96,12 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 	return nil
 }
 
-func (s *Server) collect(ctx context.Context) {
+func (s *Server) collect(ctx context.Context) error {
 	for _, c := range s.readConfig.Spec {
 		s.retrieve(ctx, "", c.JobName, c.MeasureKey, c.Name)
 	}
+
+	return nil
 }
 
 func (s *Server) deliver(w http.ResponseWriter, r *http.Request) {
@@ -135,16 +137,13 @@ func (s *Server) GetState() []*pbg.State {
 	}
 }
 
-func (s *Server) runSave(ctx context.Context) {
+func (s *Server) runSave(ctx context.Context) error {
 	data, filename := s.saveData(ctx)
 	by, _ := proto.Marshal(data)
 
 	os.MkdirAll("/media/scratch/datacollector/", 0755)
 	err := ioutil.WriteFile("/media/scratch/datacollector/"+filename, by, 0644)
-
-	if err != nil {
-		s.Log(fmt.Sprintf("Error writing data: %v", err))
-	}
+	return err
 }
 
 func main() {
