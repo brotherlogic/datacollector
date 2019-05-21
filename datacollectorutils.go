@@ -80,7 +80,8 @@ func (s *Server) getJSON(job, variable string) []byte {
 }
 
 func matchMeasure(a, b *pbgs.State) bool {
-	return (a.Key == b.Key &&
+	return (a != nil && b != nil &&
+		a.Key == b.Key &&
 		a.TimeValue == b.TimeValue &&
 		a.Value == b.Value &&
 		a.Text == b.Text &&
